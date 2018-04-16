@@ -10,15 +10,14 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.SearchView
 import arch.mvvm.com.mvvmbasearchitecture.MainApplication
 import arch.mvvm.com.mvvmbasearchitecture.R
-import arch.mvvm.com.mvvmbasearchitecture.data.Feed
+import arch.mvvm.com.mvvmbasearchitecture.data.PullRequest
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity(), MainContract.MainScreen {
+class MainActivity : AppCompatActivity() {
 
     lateinit var mainViewModel: MainViewModel
     @Inject
@@ -29,7 +28,7 @@ class MainActivity : AppCompatActivity(), MainContract.MainScreen {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_home)
         initDi()
         viewManager = LinearLayoutManager(this)
         recyclerView.apply {
@@ -37,26 +36,13 @@ class MainActivity : AppCompatActivity(), MainContract.MainScreen {
         }
 
         mainViewModel = ViewModelProviders.of(this, mViewModelFactory).get(MainViewModel::class.java)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let {
-                    mainViewModel.getNewsFeedFor(query)
-                }
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return true
-            }
-
-        })
 
         mainViewModel.getViewState().observe(this, Observer {
             render(it)
         })
     }
 
-    override fun render(mainViewState: MainViewState?) {
+    private fun render(mainViewState: MainViewState?) {
         mainViewState?.apply {
             toggleLoading(isLoading)
             display(feeds)
@@ -65,7 +51,7 @@ class MainActivity : AppCompatActivity(), MainContract.MainScreen {
         imm.hideSoftInputFromWindow(recyclerView.windowToken, 0)
     }
 
-    private fun display(feeds: List<Feed>) {
+    private fun display(feeds: List<PullRequest>) {
         viewAdapter = NewsAdapter(feeds)
         recyclerView.adapter = viewAdapter
     }

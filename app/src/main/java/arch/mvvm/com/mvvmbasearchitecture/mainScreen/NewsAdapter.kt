@@ -6,12 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import arch.mvvm.com.mvvmbasearchitecture.R
-import arch.mvvm.com.mvvmbasearchitecture.data.Feed
+import arch.mvvm.com.mvvmbasearchitecture.data.PullRequest
 
 /**
  * Created by krishan on 14/04/18.
  */
-class NewsAdapter(private val feeds: List<Feed>) : RecyclerView.Adapter<NewsAdapter.NewsHolder>() {
+class NewsAdapter(private val pullRequests: List<PullRequest>) : RecyclerView.Adapter<NewsAdapter.NewsHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup,
                                     viewType: Int): NewsAdapter.NewsHolder {
@@ -21,15 +21,15 @@ class NewsAdapter(private val feeds: List<Feed>) : RecyclerView.Adapter<NewsAdap
     }
 
     override fun onBindViewHolder(holder: NewsHolder, position: Int) {
-        holder.render(feeds[position])
+        holder.render(pullRequests[position])
     }
 
-    override fun getItemCount() = feeds.size
+    override fun getItemCount() = pullRequests.size
 
 
     class NewsHolder(private val view: View) : RecyclerView.ViewHolder(view) {
 
-        fun render(feed: Feed) {
+        fun render(pullRequest: PullRequest) {
             val textView = view.findViewById<TextView>(R.id.textView)
             textView.text = "Dummy"
         }
