@@ -1,16 +1,16 @@
 package arch.mvvm.com.mvvmbasearchitecture.data.remote
 
-import arch.mvvm.com.mvvmbasearchitecture.data.News
+import arch.mvvm.com.mvvmbasearchitecture.data.PullRequest
 import io.reactivex.Single
 import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.Path
 
 /**
  * Created by krishan on 14/04/18.
  */
-const val URL = "https://hn.algolia.com/api/v1/"
+const val URL = "https://api.github.com/"
 
 interface Api {
-    @GET("search")
-    fun news(@Query("query") query: String): Single<News>
+    @GET("repos/{owner}/{repo}/pulls?state=open")
+    fun openPullRequests(@Path("owner") owner: String, @Path("repo") repo: String): Single<List<PullRequest>>
 }
