@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MvvmBaseArchitecture</string>
     <string name="search_here">Search Here</string>
+    <string name="make_a_search_for_a_repo">Make a search for a repo</string>
 </resources>
