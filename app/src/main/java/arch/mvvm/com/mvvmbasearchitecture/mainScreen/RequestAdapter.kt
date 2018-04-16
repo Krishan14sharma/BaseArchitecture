@@ -11,27 +11,27 @@ import arch.mvvm.com.mvvmbasearchitecture.data.PullRequest
 /**
  * Created by krishan on 14/04/18.
  */
-class NewsAdapter(private val pullRequests: List<PullRequest>) : RecyclerView.Adapter<NewsAdapter.NewsHolder>() {
+class RequestAdapter(private val pullRequests: List<PullRequest>) : RecyclerView.Adapter<RequestAdapter.RequestHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup,
-                                    viewType: Int): NewsAdapter.NewsHolder {
+                                    viewType: Int): RequestAdapter.RequestHolder {
         val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_news_feed, parent, false) as View
-        return NewsHolder(view)
+                .inflate(R.layout.item_requests, parent, false) as View
+        return RequestHolder(view)
     }
 
-    override fun onBindViewHolder(holder: NewsHolder, position: Int) {
+    override fun onBindViewHolder(holder: RequestHolder, position: Int) {
         holder.render(pullRequests[position])
     }
 
     override fun getItemCount() = pullRequests.size
 
 
-    class NewsHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+    class RequestHolder(private val view: View) : RecyclerView.ViewHolder(view) {
 
         fun render(pullRequest: PullRequest) {
             val textView = view.findViewById<TextView>(R.id.textView)
-            textView.text = "Dummy"
+            textView.text = pullRequest.user.login
         }
     }
 

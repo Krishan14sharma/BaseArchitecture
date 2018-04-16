@@ -3,7 +3,6 @@ package arch.mvvm.com.mvvmbasearchitecture.mainScreen
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import android.util.Log
 import arch.mvvm.com.mvvmbasearchitecture.data.PullRequest
 import arch.mvvm.com.mvvmbasearchitecture.data.remote.RemoteRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -28,24 +27,32 @@ class MainViewModel @Inject constructor(var remote: RemoteRepository) : ViewMode
         return viewState.value!!
     }
 
-    fun getPullRequestsFor(query: String) {
-        viewState.value = state().copy(isLoading = true)
-        disposable = remote.openPullRequests("jakeWharton", "butterknife")
+    fun getPullRequestsFor(owner: String, repo: String) {
+        viewState.value = getLoadingState()
+        disposable = remote.openPullRequests(owner, repo)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableSingleObserver<List<PullRequest>>() {
                     override fun onSuccess(pullRequests: List<PullRequest>) {
-                        Log.d("main", pullRequests.size.toString())
-                        viewState.value = state().copy(isLoading = false, pullRequests = listOf(), isError = false)
+                        viewState.value = getSuccessState(pullRequests)
                     }
 
                     override fun onError(e: Throwable) {
                         e.printStackTrace()
-                        viewState.value = state().copy(isLoading = false, isError = true)
+                        viewState.value = getErrorState()
                     }
 
                 })
     }
+
+    private fun getLoadingState() =
+            state().copy(isLoading = true, isEmpty = false, isError = false, displayList = false)
+
+    private fun getSuccessState(pullRequests: List<PullRequest>) =
+            state().copy(isLoading = false, pullRequests = pullRequests, isEmpty = false, isError = false, displayList = true)
+
+    private fun getErrorState() =
+            state().copy(isLoading = false, pullRequests = listOf(), isEmpty = false, isError = true, displayList = false)
 
     override fun onCleared() {
         super.onCleared()
@@ -62,4 +69,5 @@ class MainViewModel @Inject constructor(var remote: RemoteRepository) : ViewMode
 data class MainViewState(val isLoading: Boolean = false,
                          val pullRequests: List<PullRequest>,
                          val isError: Boolean = false,
-                         val isEmpty: Boolean = true)
+                         val isEmpty: Boolean = true,
+                         val displayList: Boolean = false)

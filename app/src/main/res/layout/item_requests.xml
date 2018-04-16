@@ -12,7 +12,5 @@
         android:gravity="center"
         android:textColor="@android:color/black"
         android:textSize="18sp"
-        tools:text="test text"
-        android:background="@android:color/background_dark"
-        />
+        tools:text="test text" />
 </LinearLayout>

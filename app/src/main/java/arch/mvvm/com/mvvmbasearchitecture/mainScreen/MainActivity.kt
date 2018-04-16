@@ -9,7 +9,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import arch.mvvm.com.mvvmbasearchitecture.MainApplication
 import arch.mvvm.com.mvvmbasearchitecture.R
-import arch.mvvm.com.mvvmbasearchitecture.data.PullRequest
 import arch.mvvm.com.mvvmbasearchitecture.helper.hide
 import arch.mvvm.com.mvvmbasearchitecture.helper.show
 import kotlinx.android.synthetic.main.activity_home.*
@@ -23,15 +22,13 @@ class MainActivity : AppCompatActivity() {
     lateinit var mViewModelFactory: ViewModelProvider.Factory
 
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
-    private lateinit var viewManager: RecyclerView.LayoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         initDi()
-        viewManager = LinearLayoutManager(this)
         recyclerView.apply {
-            layoutManager = viewManager
+            layoutManager = LinearLayoutManager(this@MainActivity)
         }
 
         mainViewModel = ViewModelProviders.of(this, mViewModelFactory).get(MainViewModel::class.java)
@@ -39,6 +36,10 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.getViewState().observe(this, Observer {
             render(it)
         })
+        search.setOnClickListener {
+            mainViewModel.getPullRequestsFor("jakeWharton", "butterknife")
+        }
+
     }
 
     private fun render(mainViewState: MainViewState?) {
@@ -55,14 +56,21 @@ class MainActivity : AppCompatActivity() {
                 true -> errorView.show()
                 false -> errorView.hide()
             }
+            when (displayList) {
+                true -> {
+                    viewAdapter = RequestAdapter(pullRequests)
+                    recyclerView.adapter = viewAdapter
+                    recyclerView.show()
+                }
+                false -> {
+                    viewAdapter = RequestAdapter(pullRequests)
+                    recyclerView.adapter = viewAdapter
+                    recyclerView.hide()
+                }
+            }
         }
 //        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 //        imm.hideSoftInputFromWindow(recyclerView.windowToken, 0)
-    }
-
-    private fun display(list: List<PullRequest>) {
-        viewAdapter = NewsAdapter(list)
-        recyclerView.adapter = viewAdapter
     }
 
     private fun initDi() {
