@@ -18,22 +18,30 @@ class MainViewModel @Inject constructor(var remote: RemoteRepository) : ViewMode
 
     private var disposable: DisposableSingleObserver<List<PullRequest>>? = null
     private var viewState = MutableLiveData<MainViewState>()
-    private var state: MainViewState = MainViewState(true, listOf(), false)
 
-    fun getNewsFeedFor(query: String) {
-        viewState.value = state.copy(isLoading = true)
+    init {
+        viewState.value = MainViewState(pullRequests = emptyList())
+    }
+
+
+    private fun state(): MainViewState {
+        return viewState.value!!
+    }
+
+    fun getPullRequestsFor(query: String) {
+        viewState.value = state().copy(isLoading = true)
         disposable = remote.openPullRequests("jakeWharton", "butterknife")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableSingleObserver<List<PullRequest>>() {
                     override fun onSuccess(pullRequests: List<PullRequest>) {
                         Log.d("main", pullRequests.size.toString())
-//                        viewState.value = state.copy(isLoading = false, feeds = pullRequests.feeds, isError = false)
+                        viewState.value = state().copy(isLoading = false, pullRequests = listOf(), isError = false)
                     }
 
                     override fun onError(e: Throwable) {
                         e.printStackTrace()
-                        viewState.value = state.copy(isLoading = false, isError = true)
+                        viewState.value = state().copy(isLoading = false, isError = true)
                     }
 
                 })
@@ -51,4 +59,7 @@ class MainViewModel @Inject constructor(var remote: RemoteRepository) : ViewMode
 
 }
 
-data class MainViewState(val isLoading: Boolean, val feeds: List<PullRequest>, val isError: Boolean)
+data class MainViewState(val isLoading: Boolean = false,
+                         val pullRequests: List<PullRequest>,
+                         val isError: Boolean = false,
+                         val isEmpty: Boolean = true)
