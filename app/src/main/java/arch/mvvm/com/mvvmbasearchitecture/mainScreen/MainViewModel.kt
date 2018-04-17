@@ -27,9 +27,14 @@ class MainViewModel @Inject constructor(var remote: RemoteRepository) : ViewMode
         return viewState.value!!
     }
 
-    fun getPullRequestsFor(owner: String, repo: String) {
+    fun getPullRequestsFor(owner: String?, repo: String?) {
+        if (owner.isNullOrEmpty() || repo.isNullOrEmpty()) {
+            viewState.value = state().copy(showInputDialog = false, showToastMessage = true)
+            return
+        }
+
         viewState.value = getLoadingState()
-        disposable = remote.openPullRequests(owner, repo)
+        disposable = remote.openPullRequests(owner!!, repo!!)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableSingleObserver<List<PullRequest>>() {
@@ -45,14 +50,11 @@ class MainViewModel @Inject constructor(var remote: RemoteRepository) : ViewMode
                 })
     }
 
-    private fun getLoadingState() =
-            state().copy(isLoading = true, isEmpty = false, isError = false, displayList = false)
+    private fun getLoadingState() = MainViewState(isLoading = true, pullRequests = emptyList(), isEmpty = false)
 
-    private fun getSuccessState(pullRequests: List<PullRequest>) =
-            state().copy(isLoading = false, pullRequests = pullRequests, isEmpty = false, isError = false, displayList = true)
+    private fun getSuccessState(pullRequests: List<PullRequest>) = MainViewState(isEmpty = false, displayList = true, pullRequests = pullRequests)
 
-    private fun getErrorState() =
-            state().copy(isLoading = false, pullRequests = listOf(), isEmpty = false, isError = true, displayList = false)
+    private fun getErrorState() = MainViewState(isError = true, pullRequests = emptyList(), isEmpty = false)
 
     override fun onCleared() {
         super.onCleared()
@@ -64,10 +66,16 @@ class MainViewModel @Inject constructor(var remote: RemoteRepository) : ViewMode
         return viewState
     }
 
+    fun getSearchInput() {
+        viewState.value = state().copy(showInputDialog = true, showToastMessage = false)
+    }
+
 }
 
 data class MainViewState(val isLoading: Boolean = false,
                          val pullRequests: List<PullRequest>,
                          val isError: Boolean = false,
                          val isEmpty: Boolean = true,
-                         val displayList: Boolean = false)
+                         val displayList: Boolean = false,
+                         val showInputDialog: Boolean = false,
+                         val showToastMessage: Boolean = false)
